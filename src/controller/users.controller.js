@@ -3,7 +3,7 @@ import User from "../model/user.model.js";
 export const fetchAllUsers = async (req, res, next) => {
     try {
         console.log("fetchAllUsers API..");
-        const allUsers = await User.find({},'_id username email');
+        const allUsers = await User.find({}).select('_id username email');
         console.log("allUsers>>",allUsers);
         res.status(200).json({
             message: "Fetched all Users",
@@ -44,6 +44,26 @@ export const addContact = async (req, res, next) => {
         console.log("user contacts>>",user);
         await user.save();
         res.status(200).json({ message: "Contact added successfully" });
+    } catch (err) {
+        res.status(500);
+        res.message = err?.message;
+        next(res);
+    }
+}
+
+export const getCurrentUser = async (req, res) =>{
+    try {
+        console.log("getCurrentUser API..");
+        if(!req.user){
+            res.status(404);
+            res.message = "User not found";
+            next(res);
+            return;
+        }
+        res.status(200).json({ 
+            message: "User found",
+            data: req.user
+        })
     } catch (err) {
         res.status(500);
         res.message = err?.message;
