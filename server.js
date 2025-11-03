@@ -6,6 +6,7 @@ import { connectDB } from "./src/config/db.js"
 import { errorHandler } from "./src/middleware/errorHandler.js";
 import authRouter from "./src/routes/auth.routes.js";
 import userRouter from "./src/routes/users.routes.js";
+import chatRouter from "./src/routes/chats.routes.js";
 import authMiddleware from "./src/middleware/auth.middleware.js";
 
 dotenv.config();
@@ -16,8 +17,9 @@ const port = process.env.PORT || 3001;
 
 app.use(express.json());
 
-app.use('/auth',authRouter);
+app.use('/auth', authRouter);
 app.use('/user', authMiddleware, userRouter);
+app.use('/chat', authMiddleware, chatRouter);
 app.get("/",async (req, res) => {
     console.log("API's Workingg..");
     res.status(200).json({Message : "API's Working"});
@@ -73,6 +75,6 @@ io.on("connection", (socket) => {
   });
 });
 
-app.listen(port, () => {
-    console.log(`MeChat Backend Server Running on PORT ${port}`);
+server.listen(port, () => {
+  console.log(`🚀 MeChat Backend Server Running on PORT ${port}`);
 });
