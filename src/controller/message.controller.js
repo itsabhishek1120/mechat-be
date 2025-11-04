@@ -1,18 +1,19 @@
+import mongoose from "mongoose";
 import Message from "../model/message.model.js";
 import Chat from "../model/chat.model.js";
 
 export const sendMessage = async (req, res, next) => {
     console.log("sendMessage API..");
-    try {
-        const { reciever, content, chatId } = req.body;
-        if(!reciever || !content ||!chatId ){
-            res.status(400);
-            res.message = "Params missing";
-            next(res);
-            return;
-        }
+    const { reciever, content, chatId } = req.body;
+    if(!reciever || !content ||!chatId ){
+        res.status(400);
+        res.message = "Params missing";
+        next(res);
+        return;
+    }
 
-        let mssg = await Message.create({
+    try {
+            let mssg = await Message.create({
             sender: req.user._id,
             receiver: reciever,
             chat: chatId,
@@ -43,4 +44,39 @@ export const sendMessage = async (req, res, next) => {
         next(res);
     }
     
+}
+
+export const getMessages = async (req, res, next) => {
+    console.log("getMessages API..");
+    const { chatId } = req?.params;
+    console.log("req?.params>>",req?.params.chatId);
+    console.log("rchatId",chatId);
+    
+    if(!chatId || !mongoose.Types.ObjectId.isValid(chatId)){
+        res.status(400);
+        res.message = "Params Missing or Invalid";
+        next(res);
+        return;
+    }
+    
+    try {
+        const messages = await Message.find({ chat: chatId })
+        .populate("sender", "username")
+        .populate("receiver", "username")
+        .populate("chat");
+
+        if(!messages){
+            res.status(400);
+            res.message = "Messages not found";
+            next(res);
+            return;
+        }
+
+        res.status(200).json({ message: "Messages fetched", data: messages });
+
+    } catch (err) {
+        res.status(500);
+        res.message = err.message;
+        next(res);
+    }
 }
