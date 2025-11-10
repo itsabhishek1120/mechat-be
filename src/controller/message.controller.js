@@ -62,7 +62,7 @@ export const getMessages = async (req, res, next) => {
     try {
         const messages = await Message.find({ chat: chatId })
         .populate("sender", "username")
-        .populate("receiver", "username")
+        // .populate("receiver", "username")
         .populate("chat");
 
         if(!messages){

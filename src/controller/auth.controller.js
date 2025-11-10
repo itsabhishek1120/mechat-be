@@ -56,10 +56,11 @@ export const register = async (req, res, next) => {
       $or: [{ username: username }, { email: email }]
      });
     if(checkUser){
-      res.status(403);
-        res.message = "User Alreaady Exists";
-        next(res);
-        return;
+      res.status(403).json({
+        message: "User Alreaady Exists",
+        user: { id: checkUser._id, username: checkUser.username }
+      })
+      return;
     }
     const user = await User.create({ username: username, email: email, password: hashedPassword });
     const token = generateToken(user._id);

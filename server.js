@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import http from "http";
+import cors from "cors";
 import { Server } from "socket.io"
 import { connectDB } from "./src/config/db.js"
 import { errorHandler } from "./src/middleware/errorHandler.js";
@@ -15,7 +16,12 @@ await connectDB();
 
 const app = express();
 const port = process.env.PORT || 3001;
-
+app.use(
+    cors({
+      origin: (process.env.ENV == "dev") ? "http://localhost:4200" : process.env.FRONTEND_URL,
+      credentials: true,
+    })
+  );
 app.use(express.json());
 
 app.use('/auth', authRouter);

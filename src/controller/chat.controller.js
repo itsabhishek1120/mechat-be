@@ -47,7 +47,7 @@ export const fetchAllChats = async (req, res, next) => {
         const allChats = await Chat.find({
             users: { $elemMatch: { $eq: req.user._id } }
         })
-        .populate("users", "-password")
+        .populate("users", "_id username")
         .populate("latestMessage")
         .sort({ updatedAt: -1 });
 
