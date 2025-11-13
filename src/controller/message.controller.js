@@ -26,14 +26,26 @@ export const sendMessage = async (req, res, next) => {
 
         let chat = await Chat.findById(chatId);
 
-        if(chat){
-            chat.latestMessage = mssg._id;
-            await chat.save();
-        } else {
+        if(!chat){
             res.status(400);
             res.message = "Chat not found";
             next(res);
             return;
+        }
+        chat.latestMessage = mssg._id;
+        await chat.save();
+        console.log("chat:::",chat);
+        
+
+        // Emit the message in real-time
+        if (global.io && chat?.users?.length > 0) {
+            console.log("req.user._id::",req.user._id);
+            chat.users.forEach((user) => {
+                console.log("user in for::",user._id);
+                
+                if (user._id.toString() === req.user._id.toString()) return;
+                global.io.to(user._id.toString()).emit("message received", mssg);
+            });
         }
         
         res.status(200).json({ message: "Message sent", data: mssg });

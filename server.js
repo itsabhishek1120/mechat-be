@@ -44,38 +44,29 @@ const io = new Server(server, {
   },
 });
 
+//For global access
+global.io = io;
+
 io.on("connection", (socket) => {
   console.log("⚡ New client connected:", socket.id);
 
   // Setup personal room for the user
   socket.on("setup", (userData) => {
-    socket.join(userData._id);
-    console.log(`User joined personal room: ${userData._id}`);
+    socket.join(userData.id);
+    console.log(`User joined personal room: ${userData.id}`);
     socket.emit("connected");
   });
 
   // Join a specific chat room
-  socket.on("join chat", (room) => {
-    socket.join(room);
-    console.log(`User joined chat room: ${room}`);
+  socket.on("join chat", (chatId) => {
+    if (!chatId) return;
+    socket.join(chatId);
+    console.log(`User joined chat room: ${chatId}`);
   });
 
   // Typing indicator events
   socket.on("typing", (room) => socket.to(room).emit("typing"));
   socket.on("stop typing", (room) => socket.to(room).emit("stop typing"));
-
-  // When a new message is sent
-  socket.on("new message", (message) => {
-    const chat = message.chat;
-
-    if (!chat.users) return console.log("chat.users not defined");
-
-    // Send message to all users in the chat except sender
-    chat.users.forEach((user) => {
-      if (user._id === message.sender._id) return;
-      socket.to(user._id).emit("message received", message);
-    });
-  });
 
   // Handle disconnect
   socket.on("disconnect", () => {
