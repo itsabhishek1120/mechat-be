@@ -60,9 +60,10 @@ export const getCurrentUser = async (req, res) =>{
             next(res);
             return;
         }
+        const currentUser = await User.findById(req.user._id).populate("contacts.contactId", "_id username");
         res.status(200).json({ 
             message: "User found",
-            data: req.user
+            data: currentUser
         })
     } catch (err) {
         res.status(500);
