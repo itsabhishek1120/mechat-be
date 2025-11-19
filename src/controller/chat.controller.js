@@ -12,6 +12,13 @@ export const accessChat = async (req, res, next) => {
             return;
         }
 
+        if(userId == req.user._id){
+            res.status(400);
+            res.message = "Cannot create a chat with yourself";
+            next(res);
+            return;
+        }
+
         const existingChat = await Chat.findOne({
             isGroupChat: false,
             users: { $all: [req.user._id, userId] }
